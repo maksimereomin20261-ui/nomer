@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0a17">
+<meta name="description" content="НОМЕРА — симулятор перекупщика автомобильных номеров">
+<title>НОМЕРА — симулятор перекупщика номеров</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='2' y='16' width='60' height='32' rx='6' fill='%23fff' stroke='%23111' stroke-width='4'/%3E%3Ctext x='32' y='41' font-size='20' font-family='Arial' font-weight='700' text-anchor='middle'%3E777%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-theme="dark">
+
+<!-- Иконки, которые использует игра (<use href="#i-...">) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" d="M12.6 2.2c.5 3-1.2 4.6-2.6 6.2C8.6 10 7 11.8 7 14.6 7 18.1 9.3 21 12.4 21c3.4 0 5.6-2.6 5.6-6 0-2.4-1.1-4.2-2.4-5.6.1 1.5-.4 2.8-1.6 3.4.3-3.6-.6-6.8-1.4-10.6zM12 19.2c-1.5 0-2.6-1.2-2.6-2.8 0-1.4.9-2.4 2-3.4.2 1.2.8 2 1.8 2.4.7-.5 1-1.3 1.1-2.1.6.7.9 1.6.9 2.6 0 1.9-1.4 3.3-3.2 3.3z"/></symbol>
+  <symbol id="i-tool" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol>
+</svg>
+
+<div class="app">
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">№</span>
+      <div class="brand-t"><b>НОМЕРА</b><small class="bizname">НОМЕРНОЙ ДОМ</small></div>
+    </div>
+    <button class="balance-link" type="button" title="Баланс — к прокрутке">
+      <small>Баланс</small>
+      <b id="money">2 500 ₽</b>
+    </button>
+    <div class="top-actions">
+      <button id="bell" type="button" aria-label="Уведомления" aria-expanded="false"><svg><use href="#i-bell"/></svg><span id="belln"></span></button>
+      <button class="ava" type="button" aria-label="Профиль"></button>
+    </div>
+  </header>
+
+  <!-- НАВИГАЦИЯ: слева на компьютере, снизу на телефоне -->
+  <aside class="side">
+    <nav class="nav" aria-label="Разделы игры">
+      <button class="sb on" data-t="t1" type="button"><span class="ni">🎰</span><span class="nl">Рынок</span><span class="ns">Рынок</span><kbd>1</kbd></button>
+      <button class="sb" data-t="t5" type="button"><span class="ni">🏢</span><span class="nl">Бизнес</span><span class="ns">Бизнес</span><kbd>2</kbd></button>
+      <button class="sb" data-t="t2" id="nw" type="button"><span class="ni">📦</span><span class="nl">Склад</span><span class="ns">Склад</span><kbd>3</kbd><i class="bdg"></i></button>
+      <button class="sb" data-t="t8" type="button"><span class="ni">🔧</span><span class="nl">Мастерская</span><span class="ns">Цех</span><kbd>4</kbd></button>
+      <button class="sb" data-t="t3" type="button"><span class="ni">🚀</span><span class="nl">Улучшения</span><span class="ns">Прокачка</span><kbd>5</kbd></button>
+      <button class="sb" data-t="t4" type="button"><span class="ni">🏆</span><span class="nl">Награды</span><span class="ns">Награды</span><kbd>6</kbd></button>
+      <button class="sb" data-t="t6" type="button"><span class="ni">🚗</span><span class="nl">Гараж</span><span class="ns">Гараж</span><kbd>7</kbd></button>
+      <button class="sb" data-t="t7" type="button"><span class="ni">⚙️</span><span class="nl">Настройки</span><span class="ns">Опции</span><kbd>8</kbd></button>
+    </nav>
+    <div class="side-premium">
+      <div class="premium-card"><span class="crown" aria-hidden="true">👑</span><b>VIP<br>привилегии</b></div>
+      <button type="button" id="premium-info">Узнать больше <span aria-hidden="true">→</span></button>
+    </div>
+    <p class="side-keys">Пробел — крутить<br>A — автокрутка · ← → — сколько номеров</p>
+  </aside>
+
+  <main class="main">
+
+    <!-- ===== t1: РЫНОК ===== -->
+    <section class="tab show" id="t1" aria-label="Рынок">
+      <div class="mkt">
+        <div class="mkt-main">
+          <div class="card top roll-card">
+            <div id="ev"></div>
+            <div class="stage">
+              <span class="pl w4 r0" id="plate"></span>
+            </div>
+            <div id="meta" class="meta">Нажмите «Крутить» — выпадет случайный номер</div>
+            <div id="gain" class="gain"></div>
+            <div id="cnt" class="cnt" aria-label="Сколько номеров за одну прокрутку"></div>
+            <div class="gorow">
+              <button id="go" type="button">Крутить</button>
+              <div class="auwrap">
+                <button id="au" class="au lock" type="button" aria-label="Автокрутка"></button>
+                <div id="ahint" class="ahint" hidden>
+                  <b>⚡ Автокрутка</b>
+                  <span>Купите улучшение «Автокрутка» — номера будут крутиться сами, даже пока вы в других разделах.</span>
+                  <button id="ahbuy" type="button">Перейти к улучшениям</button>
+                </div>
+              </div>
+            </div>
+            <div class="rowinfo">
+              <div id="rate" class="rate"></div>
+              <div class="thrbox"><span class="lbl">Что оставлять на складе</span><div id="thr" class="thr"></div></div>
+            </div>
+            <div id="batch" class="batch" style="display:none">
+              <h3 class="sec-t">Последняя прокрутка</h3>
+              <div id="bl" class="bl"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>📋 Заказы покупателей <span class="rt" id="ordn">0</span></h2>
+            <p class="sub">Сдайте подходящий номер со склада — покупатель платит больше, чем рынок.</p>
+            <div id="ord" class="ords"></div>
+          </div>
+        </div>
+
+        <aside class="mkt-side">
+          <button id="daily" class="daily" type="button"></button>
+          <div class="widgets">
+            <div class="wg" data-go="t5" title="Открыть «Бизнес»">
+              <span class="wl">Уровень компании</span>
+              <b class="wv" id="lvn">1</b>
+              <div class="mb"><i id="lvx"></i></div>
+              <small id="lvt"></small>
+            </div>
+            <div class="wg">
+              <span class="wl">Цена прокрутки</span>
+              <b class="wv" id="cost"></b>
+              <small>Дешевле с улучшениями бизнеса</small>
+            </div>
+            <div class="wg" data-go="t5" title="Открыть «Бизнес»">
+              <span class="wl">Пассивный доход в час</span>
+              <b class="wv pg" id="ph"></b>
+              <small id="phs"></small>
+            </div>
+            <div class="wg office wide" data-go="t5" title="Открыть «Бизнес»">
+              <div id="bsvg" class="bsvg"></div>
+              <div class="office-st">
+                <div><span>Доход/час</span><b id="bpi"></b></div>
+                <div><span>Склад</span><b id="bcap"></b></div>
+                <div><span>Улучшения</span><b id="bfrom"></b></div>
+              </div>
+            </div>
+            <div class="wg wide" data-go="t2" title="Открыть «Склад»">
+              <span class="wl">Склад</span>
+              <b class="wv" id="whn"></b>
+              <div id="whp" class="whp"></div>
+            </div>
+            <div class="wg wide" data-go="t6" title="Открыть «Гараж»">
+              <span class="wl">Самые дорогие продажи</span>
+              <div id="popl" class="popl"></div>
+            </div>
+            <div class="wg wide chartw">
+              <div class="chh">
+                <span class="wl">Доход</span>
+                <select id="per" aria-label="Период">
+                  <option value="d">Сегодня</option>
+                  <option value="w">Неделя</option>
+                  <option value="m">Месяц</option>
+                  <option value="a" selected>Всё время</option>
+                </select>
+              </div>
+              <svg id="chart" viewBox="0 0 300 110" preserveAspectRatio="none" aria-hidden="true"></svg>
+              <div id="stn" class="stn"></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ===== t5: БИЗНЕС ===== -->
+    <section class="tab" id="t5" aria-label="Бизнес">
+      <div class="page-h"><h1>🏢 Бизнес</h1><p class="sub">Закупайте партии номеров, выставляйте лучшие на витрину и развивайте компанию.</p></div>
+      <div class="card biz-hero">
+        <div id="bizrank" class="bizrank"></div>
+        <div class="mb big"><i id="bizxpbar"></i></div>
+        <div id="bizstats" class="bizstats"></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>🎯 Задания дня</h2><div id="missions" class="missions"></div></div>
+        <div class="card"><h2>🏪 Витрина</h2><p class="sub">Номер с витрины покупают с наценкой, когда приходит покупатель.</p><div id="showcase" class="showcase"></div></div>
+      </div>
+      <div class="card"><h2>🚚 Оптовые партии</h2><div id="lots" class="lots"></div></div>
+      <div class="card"><h2>📈 Развитие компании</h2><div id="bizup"></div></div>
+    </section>
+
+    <!-- ===== t2: СКЛАД ===== -->
+    <section class="tab" id="t2" aria-label="Склад">
+      <div class="page-h"><h1>📦 Склад</h1><p class="sub" id="whh"></p></div>
+      <div id="wctl" class="wctl"></div>
+      <div id="wh" class="whl"></div>
+    </section>
+
+    <!-- ===== t8: МАСТЕРСКАЯ ===== -->
+    <section class="tab" id="t8" aria-label="Мастерская">
+      <div class="page-h"><h1>🔧 Мастерская</h1><p class="sub">Очистка → рихтовка → полировка → покраска. Отремонтированный вручную номер стоит дороже.</p></div>
+      <div class="wk">
+        <div class="card wk-list">
+          <h2>Номера на складе <span class="rt" id="wkc"></span></h2>
+          <div id="wkl" class="wkl"></div>
+        </div>
+        <div class="wk-center"><div id="wkb" class="wkb"></div></div>
+        <div id="ref-side" class="ref-side"></div>
+      </div>
+      <div id="ref-bottom" class="ref-bottom"></div>
+      <div id="ref-manager" class="ref-manager" hidden>
+        <button type="button" class="ref-close" data-ref-close="1" aria-label="Закрыть">×</button>
+        <div id="wshop" class="wshop"></div>
+      </div>
+      <div id="work-toast" class="work-toast" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- ===== t3: УЛУЧШЕНИЯ ===== -->
+    <section class="tab" id="t3" aria-label="Улучшения">
+      <div class="page-h"><h1>🚀 Улучшения</h1><p class="sub" id="upsum"></p></div>
+      <div id="ups" class="ups"></div>
+    </section>
+
+    <!-- ===== t4: НАГРАДЫ ===== -->
+    <section class="tab" id="t4" aria-label="Достижения">
+      <div class="page-h"><h1>🏆 Достижения</h1><p class="sub" id="achsum"></p></div>
+      <div id="ach" class="achl"></div>
+    </section>
+
+    <!-- ===== t6: ГАРАЖ ===== -->
+    <section class="tab" id="t6" aria-label="Гараж">
+      <div class="page-h"><h1>🚗 Гараж</h1><p class="sub" id="gh"></p></div>
+      <div id="gar" class="gar"></div>
+      <div class="grid2">
+        <div class="card">
+          <h2>📊 Статистика</h2>
+          <div id="kv" class="kvl"></div>
+          <h3 class="sec-t">Выпало по редкости</h3>
+          <div id="tc" class="tc"></div>
+        </div>
+        <div class="card"><h2>🔥 Самые дорогие продажи</h2><div id="top" class="topl"></div></div>
+      </div>
+    </section>
+
+    <!-- ===== t7: НАСТРОЙКИ ===== -->
+    <section class="tab" id="t7" aria-label="Настройки">
+      <div class="page-h"><h1>⚙️ Настройки</h1></div>
+      <div class="settings-tabs" role="tablist" aria-label="Разделы настроек">
+        <button class="settings-tab" role="tab" type="button" data-section="game" aria-selected="true">Игра</button>
+        <button class="settings-tab" role="tab" type="button" data-section="look" aria-selected="false" tabindex="-1">Оформление</button>
+        <button class="settings-tab" role="tab" type="button" data-section="account" aria-selected="false" tabindex="-1">Аккаунт</button>
+        <button class="settings-tab" role="tab" type="button" data-section="help" aria-selected="false" tabindex="-1">Помощь</button>
+      </div>
+
+      <div class="st-panel" data-panel="game">
+        <div class="st-card">
+          <h2>💾 Сохранение</h2>
+          <div class="setting-row"><div><b>Автосохранение</b><span>Прогресс сохраняется в этом браузере автоматически</span></div><button class="toggle" type="button" role="switch" data-setting="autosave" aria-checked="true" aria-label="Автосохранение"></button></div>
+          <div id="autosave-warn" class="warnbox" hidden>Автосохранение выключено. Не забудьте нажать «Сохранить сейчас» перед выходом.</div>
+          <button id="save-now" class="btn" type="button">💾 Сохранить сейчас</button>
+        </div>
+        <div class="st-card">
+          <h2>🔔 Игра</h2>
+          <div class="setting-row"><div><b>Уведомления</b><span>Счётчик на колокольчике и сообщения о событиях рынка</span></div><button class="toggle" type="button" role="switch" data-setting="notifications" aria-checked="true" aria-label="Уведомления"></button></div>
+          <div class="setting-row"><div><b>Подсказки</b><span>Подсказка про автокрутку и советы новичку</span></div><button class="toggle" type="button" role="switch" data-setting="hints" aria-checked="true" aria-label="Подсказки"></button></div>
+        </div>
+      </div>
+
+      <div class="st-panel" data-panel="look" hidden>
+        <div class="st-card">
+          <h2>🎨 Тема</h2>
+          <div class="themes">
+            <button type="button" data-theme-choice="dark" aria-pressed="true"><i class="sw sw-dark"></i>Тёмная</button>
+            <button type="button" data-theme-choice="purple" aria-pressed="false"><i class="sw sw-purple"></i>Фиолетовая</button>
+            <button type="button" data-theme-choice="classic" aria-pressed="false"><i class="sw sw-classic"></i>Классика</button>
+          </div>
+        </div>
+        <div class="st-card">
+          <h2>✨ Эффекты</h2>
+          <div class="setting-row"><div><b>Вспышки и частицы</b><span>Эффекты при выпадении редких номеров и вибрация</span></div><button class="toggle" type="button" role="switch" data-setting="effects" aria-checked="true" aria-label="Вспышки и частицы"></button></div>
+          <div class="setting-row"><div><b>Анимации интерфейса</b><span>Барабан, переходы и подсветка кнопок</span></div><button class="toggle" type="button" role="switch" data-setting="motion" aria-checked="true" aria-label="Анимации интерфейса"></button></div>
+        </div>
+      </div>
+
+      <div class="st-panel" data-panel="account" id="sp-account" hidden>
+        <div class="st-card">
+          <h2>🆔 Игрок</h2>
+          <div class="idrow"><span>Ваш ID</span><b id="local-id">—</b><button id="copy-local-id" class="btn sm" type="button">Скопировать</button></div>
+          <p class="sub">Сохранение хранится только в этом браузере на этом устройстве. Чтобы перенести прогресс, используйте экспорт в админ-панели.</p>
+        </div>
+        <div class="st-card danger">
+          <h2>⚠️ Сброс прогресса</h2>
+          <p class="sub">Удалит деньги, склад, улучшения, бизнес и мастерскую. Профиль и VIP останутся.</p>
+          <button id="reset" class="btn red" type="button">Сбросить прогресс</button>
+          <div id="reset-confirm" class="reset-confirm" hidden>
+            <b>Точно сбросить весь прогресс? Отменить будет нельзя.</b>
+            <div class="btns"><button id="reset-yes" class="btn red" type="button">Да, сбросить</button><button id="reset-no" class="btn" type="button">Отмена</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="st-panel" data-panel="help" hidden>
+        <div class="st-card">
+          <h2>🎮 Как играть</h2>
+          <ol class="howto">
+            <li><b>Рынок.</b> Крутите номера. Дешёвые продаются сразу, ценные потёртые попадают на склад.</li>
+            <li><b>Мастерская.</b> Отремонтируйте номер вручную: щётка, молоток, полировка, кисть.</li>
+            <li><b>Продажа.</b> Сдавайте номера по заказам, выставляйте на витрину или продавайте со склада.</li>
+            <li><b>Развитие.</b> Покупайте улучшения, нанимайте сотрудников и поднимайте уровень компании.</li>
+          </ol>
+        </div>
+        <div class="st-card">
+          <h2>⌨️ Горячие клавиши</h2>
+          <ul class="keys">
+            <li><kbd>Пробел</kbd> крутить</li>
+            <li><kbd>A</kbd> автокрутка вкл/выкл</li>
+            <li><kbd>←</kbd> <kbd>→</kbd> сколько номеров за раз</li>
+            <li><kbd>1</kbd>–<kbd>8</kbd> разделы игры</li>
+            <li><kbd>Q</kbd> <kbd>W</kbd> <kbd>E</kbd> <kbd>R</kbd> инструменты в мастерской</li>
+            <li><kbd>Esc</kbd> закрыть окно</li>
+          </ul>
+        </div>
+        <div class="st-card">
+          <h2>💬 Поддержка</h2>
+          <button id="support-btn" class="btn" type="button" aria-expanded="false">Написать в поддержку</button>
+          <div id="support-box" class="support-box" hidden>
+            <p class="sub">Скопируйте данные об игре и отправьте их разработчику вместе с описанием проблемы.</p>
+            <div class="btns"><button id="support-copy" class="btn sm" type="button">📋 Скопировать данные</button><a id="support-link" class="btn sm" href="#" target="_blank" rel="noopener" hidden>Открыть чат поддержки</a></div>
+          </div>
+        </div>
+        <div class="st-card">
+          <h2>ℹ️ Об игре</h2>
+          <p class="sub">НОМЕРА v1.2.1 · веб-версия. Работает в любом современном браузере, без установки и без интернета.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<noscript><div class="noscript">Для игры нужно включить JavaScript в браузере.</div></noscript>
+
+<script src="js/game.js"></script>
+<script src="js/addons.js"></script>
+</body>
+</html>
